@@ -21,12 +21,13 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import MDButton from "components/MDButton";
 import { FaArrowLeftLong, FaTrash } from "react-icons/fa6";
+import Variants from "layouts/variants/variants";
+
 
 const Product = () => {
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [price, setPrice] = useState("");
-  const [comparePrice, setComparePrice] = useState("");
+
   const [isChecked, setIsChecked] = useState(false);
   const [trackQuantity, setTrackQuantity] = useState(false);
   const [continueShopping, setContinueShopping] = useState(false);
@@ -43,12 +44,16 @@ const Product = () => {
   const [pageTitle, setPageTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [urlHandle, setUrlHandle] = useState("");
- 
-  const [category, setCategory] = useState('');
-  const [productType, setProductType] = useState('');
-  const [vendor, setVendor] = useState('');
-  const [collections, setCollections] = useState('');
-  const [tags, setTags] = useState('');
+
+  const [category, setCategory] = useState("");
+  const [productType, setProductType] = useState("");
+  const [vendor, setVendor] = useState("");
+  const [collections, setCollections] = useState("");
+  const [tags, setTags] = useState("");
+  const [price, setPrice] = useState("");
+  const [comparePrice, setComparePrice] = useState("");
+  const [profit, setProfit] = useState(null);
+  const [margin, setMargin] = useState(null);
 
   // Handle change for each TextField
   const handleCategoryChange = (event) => {
@@ -80,14 +85,6 @@ const Product = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-  };
-
-  const handlePriceChange = (event) => {
-    setPrice(event.target.value);
-  };
-
-  const handleComparePriceChange = (event) => {
-    setComparePrice(event.target.value);
   };
 
   const handleCheckboxChange = (event) => {
@@ -136,29 +133,9 @@ const Product = () => {
     setShowAdditionalInfo(true);
   };
 
-  const handleAddVariantOption = (e) => {
-    e.preventDefault();
-    setVariants([...variants, { size: "", medium: "" }]);
-  };
+  
 
-  const handleDeleteVariantOption = (index) => {
-    const updatedVariants = [...variants];
-    updatedVariants.splice(index, 1);
-    setVariants(updatedVariants);
-  };
-
-  const handleVariantSizeChange = (event, index) => {
-    const updatedVariants = [...variants];
-    updatedVariants[index].size = event.target.value;
-    setVariants(updatedVariants);
-  };
-
-  const handleVariantMediumChange = (event, index) => {
-    const updatedVariants = [...variants];
-    updatedVariants[index].medium = event.target.value;
-    setVariants(updatedVariants);
-  };
-
+ 
   const handleEditClick = (e) => {
     e.preventDefault();
     setEditMode(true);
@@ -167,10 +144,31 @@ const Product = () => {
   const handleSaveClick = () => {
     setEditMode(false);
   };
-  const handleCategory=(event)=>{
-    setCategory(event.target.value)
+  const handleCategory = (event) => {
+    setCategory(event.target.value);
+  };
+  const handlePriceChange = (event) => {
+    const newPrice = event.target.value;
+    setPrice(newPrice);
+    calculateProfit(newPrice, comparePrice);
+  };
 
-  }
+  const handleComparePriceChange = (event) => {
+    const newComparePrice = event.target.value;
+    setComparePrice(newComparePrice);
+    calculateProfit(price, newComparePrice);
+  };
+
+  const calculateProfit = (price, comparePrice) => {
+    const profitValue = parseFloat(price) - parseFloat(comparePrice);
+    setProfit(isNaN(profitValue) ? null : profitValue.toFixed(0));
+    calculateMargin(profitValue, price); // Call calculateMargin with profitValue and price
+  };
+
+  const calculateMargin = (profitValue, costPrice) => {
+    const profitPercentage = ((profitValue / costPrice) * 100).toFixed(2);
+    setMargin(isNaN(profitPercentage) ? null : `${profitPercentage}%`);
+  };
 
   return (
     <DashboardLayout>
@@ -227,109 +225,151 @@ const Product = () => {
         </Box>
 
         <Container maxWidth="sm">
-      <Box display="flex" flexDirection="column">
-       
-        <Box display="flex" justifyContent="space-between">
-          <Paper
-            elevation={3}
-            style={{
-              maxWidth: 'calc(50% - 10px)', 
-              padding: '20px',
-              marginTop: '15px',
-            }}
-          >
-            <Box mt={2} p={2} border={1} borderColor="grey.200">
-              <Typography variant="h6" component="div" gutterBottom>
-                Title:
-              </Typography>
-              <TextField
-                label="Title"
-                variant="outlined"
-                margin="normal"
-                style={{ width: 430 }}
-              />
-
-              <Typography variant="h6" component="div" gutterBottom>
-                Description:
-              </Typography>
-              <TextField
-                label="Description"
-                variant="outlined"
-                margin="normal"
-                multiline
-                rows={4}
-                style={{ width: '100%' }}
-              />
-            </Box>
-          </Paper>
-
-          <Paper
-            elevation={3}
-            style={{
-              width: '500px', 
-              height: '180px',
-              padding: '20px',
-              marginTop: '15px',
-            }}
-          >
-            <Box mt={2} p={2} border={1} borderColor="grey.200">
-              <Typography variant="h6" component="div" gutterBottom>
-                Status:
-              </Typography>
-              <Select
-                labelId="status-select-label"
-                id="status-select"
-                style={{ width: 100 }}
+          <Box display="flex" flexDirection="column">
+            <Box display="flex" justifyContent="space-between">
+              <Paper
+                elevation={3}
+                style={{
+                  maxWidth: "calc(50% - 10px)",
+                  padding: "20px",
+                  marginTop: "15px",
+                }}
               >
-                <MenuItem value={'value1'}>Active</MenuItem>
-                <MenuItem value={'value2'}>Draft</MenuItem>
-              </Select>
+                <Box mt={2} p={2} border={1} borderColor="grey.200">
+                  <Typography variant="h6" component="div" gutterBottom>
+                    Title:
+                  </Typography>
+                  <TextField
+                    label="Title"
+                    variant="outlined"
+                    margin="normal"
+                    style={{ width: 430 }}
+                  />
+
+                  <Typography variant="h6" component="div" gutterBottom>
+                    Description:
+                  </Typography>
+                  <TextField
+                    label="Description"
+                    variant="outlined"
+                    margin="normal"
+                    multiline
+                    rows={4}
+                    style={{ width: "100%" }}
+                  />
+                </Box>
+              </Paper>
+
+              <Paper
+                elevation={3}
+                style={{
+                  width: "500px",
+                  height: "180px",
+                  padding: "20px",
+                  marginTop: "15px",
+                }}
+              >
+                <Box mt={2} p={2} border={1} borderColor="grey.200">
+                  <Typography variant="h6" component="div" gutterBottom>
+                    Status:
+                  </Typography>
+                  <Select
+                    labelId="status-select-label"
+                    id="status-select"
+                    style={{ width: 100 }}
+                  >
+                    <MenuItem value={"value1"}>Active</MenuItem>
+                    <MenuItem value={"value2"}>Draft</MenuItem>
+                  </Select>
+                </Box>
+              </Paper>
             </Box>
-          </Paper>
-        </Box>
 
-    
-        <Paper
-  elevation={3}
-  style={{
-    width: '510px', 
-    padding: '20px',
-    marginTop: '-140px',
-    marginLeft:'610px'
-  }}
->
-  <Box mt={2} p={2} border={1} borderColor="grey.200">
-    <Typography variant="h6" component="div" gutterBottom>
-      Publishing:
-    </Typography>
-   
-    <Typography variant="body1" gutterBottom>
-      Sales channels:
-    </Typography>
-    <ul>
-      <li>Online Store - Incomplete</li>
-      <li>Point of Sale - Point of Sale has not been set up. Finish the remaining steps to start selling in person. Learn more</li>
-      <li>Markets - Incomplete</li>
-      <li>India and International</li>
-    </ul>
-  </Box>
-</Paper>
+            <Paper
+              elevation={3}
+              style={{
+                width: "510px",
+                padding: "20px",
+                marginTop: "-140px",
+                marginLeft: "610px",
+              }}
+            >
+              <Box mt={2} p={2} border={1} borderColor="grey.200">
+                <Typography variant="h6" component="div" gutterBottom>
+                  Publishing:
+                </Typography>
 
-<Paper elevation={3} style={{ width: '510px', padding: '20px', marginTop: '30px', marginLeft: '610px' }}>
-      <Typography variant="h6" component="div" gutterBottom>
-        Product Organization
-      </Typography>
-  
-      <TextField label="Category" variant="outlined" fullWidth margin="normal" value={category} onChange={handleCategoryChange} />
-      <TextField label="Product type" variant="outlined" fullWidth margin="normal" value={productType} onChange={handleProductTypeChange} />
-      <TextField label="Vendor" variant="outlined" fullWidth margin="normal" value={vendor} onChange={handleVendorChange} />
-      <TextField label="Collections" variant="outlined" fullWidth margin="normal" value={collections} onChange={handleCollectionsChange} />
-      <TextField label="Tags" variant="outlined" fullWidth margin="normal" value={tags} onChange={handleTagsChange} />
-    </Paper>
-      </Box>
+                <Typography variant="body1" gutterBottom>
+                  Sales channels:
+                </Typography>
+                <ul>
+                  <li>Online Store - Incomplete</li>
+                  <li>
+                    Point of Sale - Point of Sale has not been set up. Finish
+                    the remaining steps to start selling in person. Learn more
+                  </li>
+                  <li>Markets - Incomplete</li>
+                  <li>India and International</li>
+                </ul>
+              </Box>
+            </Paper>
 
-    
-    </Container>
+            <Paper
+              elevation={3}
+              style={{
+                width: "510px",
+                padding: "20px",
+                marginTop: "30px",
+                marginLeft: "610px",
+              }}
+            >
+              <Typography variant="h6" component="div" gutterBottom>
+                Product Organization
+              </Typography>
+
+              <TextField
+                label="Category"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={category}
+                onChange={handleCategoryChange}
+              />
+              <TextField
+                label="Product type"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={productType}
+                onChange={handleProductTypeChange}
+              />
+              <TextField
+                label="Vendor"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={vendor}
+                onChange={handleVendorChange}
+              />
+              <TextField
+                label="Collections"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={collections}
+                onChange={handleCollectionsChange}
+              />
+              <TextField
+                label="Tags"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                value={tags}
+                onChange={handleTagsChange}
+              />
+            </Paper>
+          </Box>
+        </Container>
 
         <Container maxWidth="sm" style={{ marginTop: "-680px" }}>
           <Paper elevation={3} style={{ padding: "20px", width: "500px" }}>
@@ -380,8 +420,6 @@ const Product = () => {
               variant="outlined"
               margin="normal"
               style={{ width: 200, marginLeft: "20px" }}
-              value={comparePrice}
-              onChange={handleComparePriceChange}
             />
             <FormControlLabel
               control={
@@ -402,16 +440,16 @@ const Product = () => {
               variant="outlined"
               margin="normal"
               style={{ width: 200, marginLeft: "20px" }}
-              value={comparePrice}
-              onChange={handleComparePriceChange}
+              value={profit !== null ? profit : "---"}
+              InputProps={{ readOnly: true }} // to prevent manual input
             />
             <TextField
               label="Margin"
               variant="outlined"
               margin="normal"
               style={{ width: 200, marginLeft: "20px" }}
-              value={comparePrice}
-              onChange={handleComparePriceChange}
+              value={margin !== null ? margin : "---"}
+              InputProps={{ readOnly: true }}
             />
           </Paper>
         </Container>
@@ -541,54 +579,8 @@ const Product = () => {
             )}
           </Paper>
         </Container>
-
-        <Container maxWidth="sm" style={{ marginTop: "20px" }}>
-          <Paper elevation={3} style={{ padding: "20px", width: "500px" }}>
-            <Typography variant="h5" gutterBottom>
-              Variants
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              <a href="#" onClick={handleAddVariantOption}>
-                + Add Options like size or color
-              </a>
-            </Typography>
-            {variants.map((variant, index) => (
-              <Grid
-                container
-                spacing={2}
-                key={index}
-                style={{ marginTop: "10px" }}
-              >
-                <Grid item xs={4}>
-                  <TextField
-                    label="Size"
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                    value={variant.size}
-                    onChange={(e) => handleVariantSizeChange(e, index)}
-                  />
-                </Grid>
-                <Grid item xs={4}>
-                  <TextField
-                    label="Medium"
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                    value={variant.medium}
-                    onChange={(e) => handleVariantMediumChange(e, index)}
-                  />
-                </Grid>
-                <Grid item xs={4}>
-                  <IconButton onClick={() => handleDeleteVariantOption(index)}>
-                    <FaTrash />
-                  </IconButton>
-                </Grid>
-                <MDButton>Done</MDButton>
-              </Grid>
-            ))}
-          </Paper>
-        </Container>
+         <Variants price={price}/>
+        
 
         <Container maxWidth="sm" style={{ marginTop: "20px" }}>
           <Paper
