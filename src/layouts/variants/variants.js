@@ -16,6 +16,10 @@ import {
   TableRow
 } from "@mui/material";
 import { FaTrash } from "react-icons/fa";
+import { Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+
 
 import MDButton from "components/MDButton";
 
@@ -23,12 +27,12 @@ function Variants({ price }) {
   const [variants, setVariants] = useState([]);
   const [fields, setFields] = useState([""]);
   const [tableData, setTableData] = useState([]);
-  const [showTable, setShowTable] = useState(false); // State to track whether to show the table or not
+  const [showTable, setShowTable] = useState(false); 
 
   const handleAddVariantOption = (e) => {
     e.preventDefault();
     setVariants([...variants, { size: "", medium: "" }]);
-    // Initialize fields with one empty string instead of an empty array
+    
     setFields([""]);
   };
   
@@ -38,7 +42,7 @@ function Variants({ price }) {
     newFields[index] = e.target.value;
   
     if (index === newFields.length - 1 && e.target.value.trim() !== "") {
-      // Add a new field only if the last existing field is not empty
+      
       newFields.push("");
     }
   
@@ -156,7 +160,7 @@ function Variants({ price }) {
           </Grid>
         ))}
         
-        {showTable && ( // Conditionally render the table based on showTable state
+        {showTable && ( 
           <TableContainer>
             <Table>
               <TableHead>
@@ -168,15 +172,25 @@ function Variants({ price }) {
               <TableBody>
                 {tableData.map((data, dataIndex) => (
                   <TableRow key={dataIndex}>
-                    <TableCell>
-                      {data.variant}
-                      {data.newField.map((field, fieldIndex) => (
-                        <div key={fieldIndex}>{field}</div>
-                      ))}
-                    </TableCell>
+                    <Accordion>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="panel1a-content"
+        id="panel1a-header"
+      >
+        {data.variant}
+      </AccordionSummary>
+      {/* <AccordionDetails> */}
+        {data.newField.map((field, fieldIndex) => (
+          <div key={fieldIndex}>
+            <h4 >{field}</h4>
+          </div>
+        ))}
+      {/* </AccordionDetails> */}
+    </Accordion>
                     <TableCell>{data.price}</TableCell>
                     <TableCell>
-                      {/* Render any additional content here */}
+                      
                     </TableCell>
                   </TableRow>
                 ))}
